@@ -1,30 +1,15 @@
 #pragma once
-#include <vector>
-#include <array>
 #include "../8080/types.h"
-
 
 class Memory
 {
     public:
-    Memory(const char* file_name);
+    virtual u8 read_byte(u16 addr) const = 0;
+    virtual u16 read_word(u16 addr) const = 0;
 
-    public:
-    u8 read_byte(u16 addr) const;
-    u16 read_word(u16 addr) const;
+    virtual void write_byte(u16 addr, u8 data) = 0;
+    virtual void write_word(u16 addr, u16 data) = 0;
 
-    void write_byte(u16 addr, u8 data);
-    void write_word(u16 addr, u16 data);
-
-    u8 read_port(int port);
-    void write_port(u16 addr, u8 data);
-
-    //void load_test(const char* file_name);
-
-    private:
-    void load_rom(const char* file_name);
-
-    std::vector<u8> rom;
-    std::array<u8, 0x2000> ram; // ram + vram
-    
+    virtual u8 read_port(u8 port) = 0;
+    virtual void write_port(u8 port, u8 data) = 0; 
 };

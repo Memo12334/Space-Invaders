@@ -10,6 +10,9 @@ class Cpu
 
     void execute_instruction();
     void reset();
+    int get_cycles() const;
+    void set_cycles(int val);
+    void interrupt(u16 addr);
 
     private:
     Memory& memory;
@@ -111,6 +114,6 @@ class Cpu
 
     //public:
     //void run_testrom();
-    //void i8080_debug_output();
+    void i8080_debug_output();
 };
 

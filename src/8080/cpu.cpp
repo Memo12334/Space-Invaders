@@ -26,6 +26,24 @@ void Cpu::reset()
 
     halted = false;
     cycles = 0;
+    interrupted = false;
+}
+
+int Cpu::get_cycles() const
+{
+    return cycles;
+}
+
+void Cpu::set_cycles(int val)
+{
+    cycles = val;
+}
+
+void Cpu::interrupt(u16 addr)
+{
+    push(pc);
+    pc = addr;
+    interrupted = false;
 }
 
 u8 Cpu::read_byte(u16 addr) const
@@ -261,6 +279,7 @@ void Cpu::execute_instruction()
 {
     u8 opcode = read_byte(pc++);
     u16 temp;
+    i8080_debug_output();
 
     switch(opcode)
     {
@@ -559,7 +578,7 @@ void Cpu::execute_instruction()
        case 0x3F: cycles += 4; F ^= Carry; break;           // CMC
        case 0x37: cycles += 4; set_flags(Carry, 1); break;  // STC
        case 0x2F: cycles += 4; A ^= 0xFF; break;            // CMA
-       case 0x76: cycles += 7; halted = 1; break;     // HLT
+       case 0x76: cycles += 7; halted = 1; pc--; break;     // HLT
 
        // RST
        case 0xC7: cycles += 11; call(0x00); break;
@@ -571,12 +590,12 @@ void Cpu::execute_instruction()
        case 0xF7: cycles += 11; call(0x30); break;
        case 0xFF: cycles += 11; call(0x38); break;
 
-       case 0xDB: cycles += 10; pc++; break;    // IN
-       case 0xD3: cycles += 10; pc++; break;    // OUT
+       case 0xDB: cycles += 10; A = memory.read_port(pc++); break;            // IN
+       case 0xD3: cycles += 10; memory.write_port(read_byte(pc++), A); break; // OUT
     }  
 }
 
-/*
+
 
 static const char* DISASSEMBLE_TABLE[] = {
     "nop", "lxi b,#", "stax b", "inx b", "inr b", "dcr b", "mvi b,#", "rlc",
@@ -646,7 +665,7 @@ void Cpu::i8080_debug_output() {
     printf("==============================\n");
 }
 
-
+/*
 void Cpu::run_testrom() {
     pc = 0x100; // the test roms all start at 0x100
     write_byte(5, 0xC9); // inject RET at 0x5 to handle "CALL 5", needed
