@@ -42,22 +42,18 @@ void Invaders::handle_event(sf::Event& ev)
 void Invaders::render(sf::RenderWindow& window)
 {
     int offset = 0x2400 - 0x2000;
-    for (int i = 0, j = 0; i < WIDTH * HEIGHT / 8; i++, j += 4)
+    for (int i = 0; i < WIDTH * HEIGHT; i++)
     {
-        if (ram[offset+i] != 0)
-        {
-            display[i]   = 255;
-            display[i+1] = 255;
-            display[i+2] = 255;
-            display[i+3] = 255;
-        }
-        else
-        {
-            display[i]   = 0;
-            display[i+1] = 0;
-            display[i+2] = 0;
-            display[i+3] = 0;
-        }
+        const auto byte_index = i / 8;
+        const auto bit_index = i % 8;
+
+        const auto val = ram[offset + byte_index] & (1 << bit_index);
+
+
+        display[i*4 + 0] = val * 255;
+        display[i*4 + 1] = val * 255;
+        display[i*4 + 2] = val * 255;
+        display[i*4 + 3] = val * 255;
     } 
 
     sf::Image image;
@@ -151,6 +147,9 @@ void Invaders::write_port(u8 port, u8 data)
 void Invaders::load_rom(const char* file_name)
 {
     std::ifstream file(file_name, std::ios::binary);
+    if (!file)
+        printf("Erorr");
+
     std::copy(std::istream_iterator<u8>(file), std::istream_iterator<u8>(),
             std::back_inserter(rom));
     file.close();

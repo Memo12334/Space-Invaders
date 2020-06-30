@@ -234,12 +234,6 @@ void Cpu::dad(u16 data)
     set_HL(u16res);
 }
 
-void Cpu::jmp(const u16 addr)
-{
-    pc += 2;
-    pc = addr;
-}
-
 void Cpu::call(const u16 addr)
 {
     pc += 2;
@@ -532,8 +526,8 @@ void Cpu::execute_instruction()
        case 0x3B: cycles += 5; sp--; break;    
       
        // JMP
-       case 0xC3: cycles += 10; jmp(read_word(pc)); break;
-       case 0xCB: cycles += 10; jmp(read_word(pc)); break;
+       case 0xC3: cycles += 10; pc = read_next_word(); break;
+       case 0xCB: cycles += 10; pc = read_next_word(); break;
 
        // CALL
        case 0xCD: cycles += 17; call(read_word(pc)); break;

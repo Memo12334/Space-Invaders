@@ -5,9 +5,6 @@
 #include "../8080/cpu.h"
 #include "memory.h"
 
-
-class Cpu;
-
 class Invaders : public Memory
 {
     public:

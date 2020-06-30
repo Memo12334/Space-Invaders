@@ -19,9 +19,9 @@ int main(int argc, char** argv)
             if (event.type == sf::Event::Closed)
                 window.close();
             
-            invaders.execute_instruction();
             invaders.handle_event(event);
         }
+        invaders.execute_instruction();
         invaders.render(window);
 
     }
