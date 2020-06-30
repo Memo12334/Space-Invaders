@@ -148,7 +148,7 @@ void Invaders::load_rom(const char* file_name)
 {
     std::ifstream file(file_name, std::ios::binary);
     if (!file)
-        printf("Erorr");
+        printf("Error");
 
     std::copy(std::istream_iterator<u8>(file), std::istream_iterator<u8>(),
             std::back_inserter(rom));

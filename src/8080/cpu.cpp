@@ -271,9 +271,9 @@ void Cpu::rar()
 
 void Cpu::execute_instruction()
 {
+    i8080_debug_output();
     u8 opcode = read_byte(pc++);
     u16 temp;
-    i8080_debug_output();
 
     switch(opcode)
     {

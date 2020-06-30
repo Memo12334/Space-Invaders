@@ -21,7 +21,8 @@ int main(int argc, char** argv)
             
             invaders.handle_event(event);
         }
-        invaders.execute_instruction();
+
+        invaders.execute_instruction();        
         invaders.render(window);
 
     }
