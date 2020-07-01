@@ -23,21 +23,61 @@ void Invaders::execute_instruction()
 
 void Invaders::handle_event(sf::Event& ev)
 {
-    if (ev.key.code == sf::Keyboard::Left)
-        port1i |= 0x20;
-    else
-        port1i &= ~0x20;
-    
-    if (ev.key.code == sf::Keyboard::Right)
-        port1i |= 0x40;
-    else 
-        port1i &= ~0x40;
-    
-    if (ev.key.code == sf::Keyboard::Space)
-        port1i |= 0x10;
-    else 
-        port1i &= ~0x10;
+    if (ev.type == sf::Event::KeyPressed)
+    {
+        switch (ev.key.code)
+        {
+            case sf::Keyboard::Left:
+                port1i |= 0x20;
+                break;
+            case sf::Keyboard::Right:
+                port1i |= 0x40;
+                break;
+            case sf::Keyboard::Space:   // shooot
+                port1i |= 0x10;
+                break;
+            case sf::Keyboard::C:       // credit
+                port1i |= 0x1;
+                break;
+            case sf::Keyboard::Num1:    // 1p
+                port1i |= 0x4;
+                break;
+            case sf::Keyboard::Num2:    // 2p
+                port1i |= 0x2;;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (ev.type == sf::Event::KeyReleased)
+    {
+        switch (ev.key.code)
+        {
+             case sf::Keyboard::Left:
+                port1i &= ~0x20;
+                break;
+            case sf::Keyboard::Right:
+                port1i &= ~0x40;
+                break;
+            case sf::Keyboard::Space:
+                port1i &= ~0x10;
+                break;
+            case sf::Keyboard::C:
+                port1i &= ~0x1;
+                break;
+            case sf::Keyboard::Num1:
+                port1i &= ~0x4;
+                break;
+            case sf::Keyboard::Num2:
+                port1i &= ~0x2;;
+                break;
+            default:
+                break;
+        }
+    }
 }
+
 
 void Invaders::render(sf::RenderWindow& window)
 {
@@ -50,10 +90,10 @@ void Invaders::render(sf::RenderWindow& window)
         const auto val = ram[offset + byte_index] & (1 << bit_index);
 
 
-        display[i*4 + 0] = val * 255;
-        display[i*4 + 1] = val * 255;
-        display[i*4 + 2] = val * 255;
-        display[i*4 + 3] = val * 255;
+        display[i*4 + 0] = val ? 255 : 0;
+        display[i*4 + 1] = val ? 255 : 0;
+        display[i*4 + 2] = val ? 255 : 0;
+        display[i*4 + 3] = val ? 255 : 0;
     } 
 
     sf::Image image;
@@ -63,6 +103,9 @@ void Invaders::render(sf::RenderWindow& window)
 	texture.loadFromImage(image);
 	sf::Sprite sprite;
 	sprite.setTexture(texture, true);
+    sprite.setScale(1.8f,1.8f);
+    sprite.rotate(-90.f);
+    sprite.move(0, sprite.getGlobalBounds().height);
 
 	window.clear();
 	window.draw(sprite);
@@ -149,6 +192,8 @@ void Invaders::load_rom(const char* file_name)
     std::ifstream file(file_name, std::ios::binary);
     if (!file)
         printf("Error");
+
+    file.unsetf(std::ios::skipws);
 
     std::copy(std::istream_iterator<u8>(file), std::istream_iterator<u8>(),
             std::back_inserter(rom));

@@ -38,11 +38,11 @@ class Invaders : public Memory
     std::array<u8, WIDTH * HEIGHT * 4> display = {}; // RGBA 
     static constexpr int cycles_per_interrupt = 2000000 / (60 * 2); // cycles per interrupt
 
-    u8 port1i;
-    u8 port2i;
-    u8 port2o;
-    u8 port3o;
-    u8 port4lo;
-    u8 port4hi;
-    u8 port5o;
+    u8 port1i  = 0;
+    u8 port2i  = 0;
+    u8 port2o  = 0;
+    u8 port3o  = 0;
+    u8 port4lo = 0;
+    u8 port4hi = 0;
+    u8 port5o  = 0;
 };
