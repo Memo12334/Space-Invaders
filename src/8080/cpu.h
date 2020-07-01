@@ -18,7 +18,7 @@ class Cpu
     Memory& memory;
     int cycles;
     bool halted;
-    bool interrupted;
+    bool interrupt_enable;
 
     enum Flags {
         Carry       = 0x01,

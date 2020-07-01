@@ -26,7 +26,7 @@ void Cpu::reset()
 
     halted = false;
     cycles = 0;
-    interrupted = false;
+    interrupt_enable = false;
 }
 
 int Cpu::get_cycles() const
@@ -41,9 +41,12 @@ void Cpu::set_cycles(int val)
 
 void Cpu::interrupt(u16 addr)
 {
+    if (!interrupt_enable)
+        return;
+    
     push(pc);
     pc = addr;
-    interrupted = false;
+    interrupt_enable = false;
 }
 
 u8 Cpu::read_byte(u16 addr) const
@@ -271,7 +274,7 @@ void Cpu::rar()
 
 void Cpu::execute_instruction()
 {
-    i8080_debug_output();
+    //i8080_debug_output();
     u8 opcode = read_byte(pc++);
     u16 temp;
 
@@ -514,15 +517,15 @@ void Cpu::execute_instruction()
        case 0x39: cycles += 10; dad(sp); break;
 
        // INX
-       case 0x03: cycles += 5; B++, C++; break;
-       case 0x13: cycles += 5; D++, E++; break;
-       case 0x23: cycles += 5; H++, L++; break;
+       case 0x03: cycles += 5; set_BC(get_BC() + 1); break;
+       case 0x13: cycles += 5; set_DE(get_DE() + 1); break;
+       case 0x23: cycles += 5; set_HL(get_HL() + 1); break;
        case 0x33: cycles += 5; sp++; break;
 
        // DCX
-       case 0x0B: cycles += 5; B--, C--; break;
-       case 0x1B: cycles += 5; D--, E--; break;
-       case 0x2B: cycles += 5; H--, L--; break;
+       case 0x0B: cycles += 5; set_BC(get_BC() - 1); break;
+       case 0x1B: cycles += 5; set_DE(get_DE() - 1); break;
+       case 0x2B: cycles += 5; set_HL(get_HL() - 1); break;
        case 0x3B: cycles += 5; sp--; break;    
       
        // JMP
@@ -567,12 +570,12 @@ void Cpu::execute_instruction()
        case 0x0F: cycles += 4; rrc(); break;    // RRC
        case 0x17: cycles += 4; ral(); break;    // RAL
        case 0x1F: cycles += 4; rar(); break;    // RAR
-       case 0xF3: cycles += 4; interrupted = false; break;  // EI
-       case 0xFB: cycles += 4; interrupted = true; break;   // DI
-       case 0x3F: cycles += 4; F ^= Carry; break;           // CMC
-       case 0x37: cycles += 4; set_flags(Carry, 1); break;  // STC
-       case 0x2F: cycles += 4; A ^= 0xFF; break;            // CMA
-       case 0x76: cycles += 7; halted = 1; pc--; break;     // HLT
+       case 0xF3: cycles += 4; interrupt_enable = false; break;    // DI
+       case 0xFB: cycles += 4; interrupt_enable = true; break;   // EI
+       case 0x3F: cycles += 4; F ^= Carry; break;            // CMC
+       case 0x37: cycles += 4; set_flags(Carry, 1); break;   // STC
+       case 0x2F: cycles += 4; A ^= 0xFF; break;             // CMA
+       case 0x76: cycles += 7; halted = 1; pc--; break;      // HLT
 
        // RST
        case 0xC7: cycles += 11; call(0x00); break;
@@ -584,8 +587,8 @@ void Cpu::execute_instruction()
        case 0xF7: cycles += 11; call(0x30); break;
        case 0xFF: cycles += 11; call(0x38); break;
 
-       case 0xDB: cycles += 10; A = memory.read_port(pc++); break;            // IN
-       case 0xD3: cycles += 10; memory.write_port(read_byte(pc++), A); break; // OUT
+       case 0xDB: cycles += 10; A = memory.read_port(read_byte(pc++)); break;  // IN
+       case 0xD3: cycles += 10; memory.write_port(read_byte(pc++), A); break;  // OUT
     }  
 }
 
